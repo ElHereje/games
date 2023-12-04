@@ -1,5 +1,5 @@
 '''
-Generamos la codificación para los disparos
+Generamos la codificación para los enemigos y las colisiones
 
 '''
 
@@ -48,17 +48,20 @@ class Game:
 
 
         self.lista_spritesAdibujar = pygame.sprite.Group() # creamos una lisTa de sprites
+        # colisiones con los disparos --> creamos lista de disparon
+        self.lista_disparos = pygame.sprite.Group()
 
         self.instancias()
 
     def instancias(self): # creamos los objetos (los autométicos...)
+
+        # nuestra nave
         self.nave = Nave(self)
         self.lista_spritesAdibujar.add(self.nave)
 
-
-        # for i in range(900):
-        #     estrella = EstrellasRetro(self)
-        #     self.arrayEstrellasRetro.append(estrella)
+        # enemigos
+        self.enemigo = Enemigo(self)
+        self.lista_spritesAdibujar.add(self.enemigo)
 
         
 
@@ -66,7 +69,9 @@ class Game:
 
         # imagen
         self.disparo = Disparo(self, self.nave.rect.centerx, self.nave.rect.y)
+        # lo añadimos a las listas
         self.lista_spritesAdibujar.add(self.disparo)
+        self.lista_disparos.add(self.disparo)
 
         # sonido
         self.sonido_disparo.play()
@@ -82,13 +87,7 @@ class Game:
     def draw(self):
 
         self.pantalla.blit(self.fondoEstrellas, (0,0))
-        self.pantalla.blit(self.saturno, (500, 200))
-        # self.pantalla.fill((0, 0, 40))
-        
-
-
-        # for i in range(100):
-        #     self.arrayEstrellasRetro[i].dibuja()
+        self.pantalla.blit(self.saturno, (500, 200))    
 
         self.lista_spritesAdibujar.draw(self.pantalla)
 
