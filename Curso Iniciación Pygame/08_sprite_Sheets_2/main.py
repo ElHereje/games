@@ -34,6 +34,9 @@ class Game:
 		self.pantalla = pygame.display.set_mode(self.RESOLUCION)
 		self.reloj = pygame.time.Clock()
 
+		# creamos la varible fondoNubes
+		self.fondonubes = pygame.image.load('../images/scrollBg1.png').convert()
+
 		self.lista_spritesAdibujar = pygame.sprite.Group()
 		self.instancias()
 
@@ -41,8 +44,20 @@ class Game:
 
 
 	def instancias(self):
+		# creamos el suelo
+		for i in range(self.RESOLUCION[0] // 80): # nº de bloques necesarios
+			suelotile = SueloTile(self, i*80, self.RESOLUCION[1])
+			# y la añadimo a la lista de sprites a dibijar
+			self.lista_spritesAdibujar.add(suelotile)
+
+		# podemos crear tb plataformas..
+		for i in range(80, 400, 80):
+			plataforma = SueloTile(self, i, 350)
+			self.lista_spritesAdibujar.add(plataforma)
+
+
 		# creamos el personaje
-		self.personaje = Personaje(self)
+		self.personaje = Personaje(self, self.RESOLUCION[0] // 2, self.RESOLUCION[1] - 220)
 		# y lo añadimos a la lista de personajes
 		self.lista_spritesAdibujar.add(self.personaje)
 
@@ -69,7 +84,8 @@ class Game:
 
 
 	def draw(self):
-		self.pantalla.fill(self.fondoGRIS)
+		# self.pantalla.fill(self.fondoGRIS)
+		self.pantalla.blit(self.fondonubes, (0, 0))
 
 		self.lista_spritesAdibujar.draw(self.pantalla) 
 

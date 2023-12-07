@@ -7,7 +7,7 @@ import random
 # En estos codigos, crearemos las clases que necesitemos
 # -------------------------------------------------------------
 class Personaje(pygame.sprite.Sprite):
-    def __init__(self, game):
+    def __init__(self, game, x, y):
         super().__init__()
         self.game = game
 
@@ -33,7 +33,10 @@ class Personaje(pygame.sprite.Sprite):
         self.image = self.lista_imagenes[0]
         # lo posicionamos
         self.rect = self.image.get_rect()
-        self.rect.topleft = (360, 245)
+        self.rect.topleft = (x, y)
+
+        # giros del personaje
+        self.flip = False
         
 
         # toma de tiempo para las animaciones:
@@ -51,17 +54,14 @@ class Personaje(pygame.sprite.Sprite):
             self.ultimoUpdate = calculo
 
             # cambio de animnacion
-            if self.anima == 7:
-                self.anima = 8
+            if self.anima == 9:
+                self.anima = 10
             else:
-                self.anima = 7
+                self.anima = 9
 
-            x = self.rect.x
-            y = self.rect.y
             self.image = self.lista_imagenes[self.anima]
-            self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
+            # giramos la imagen al cambiar de sentido
+            self.image = pygame.transform.flip(self.image, self.flip, False)
 
 
 
@@ -70,9 +70,11 @@ class Personaje(pygame.sprite.Sprite):
 
         if tecla[pygame.K_LEFT]:
             self.rect.x -= 5
+            self.flip = True
 
         elif tecla[pygame.K_RIGHT]:
             self.rect.x += 5
+            self.flip = False
 
 
         # ------------------ Check Limites ----------------
@@ -86,13 +88,16 @@ class Personaje(pygame.sprite.Sprite):
 
 
 
-
+# creamos el suelo
 class SueloTile(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         super().__init__()
         self.game = game 
- 
 
+        image_rect = self.game.obtenerGrafico('SueloTile.png', (80, 110))
+        self.image = image_rect[0]
+        self.rect = image_rect[1]
+        self.rect.bottomleft = (x, y)
 
 
     def update(self):
