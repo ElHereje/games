@@ -1,2 +1,2 @@
-Curso de iniciación a Pygame, importido por D. Juan Eguia Abad, desde su canal de Youtube https://www.youtube.com/@siempreretro
+Curso de iniciación a Pygame, impartido por D. Juan Eguia Abad, desde su canal de Youtube https://www.youtube.com/@siempreretro
 Repositorioa con su código https://github.com/juan1639
