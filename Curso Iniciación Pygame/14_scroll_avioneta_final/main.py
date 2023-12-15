@@ -14,6 +14,9 @@ from prg2 import *
 #							draw()
 #							check_event()			
 # ----------------------------------------------------------------
+'''
+Añadimo disparo hacia abajo
+'''
 class Game:
 	def __init__(self):
 		pygame.init()
@@ -26,7 +29,9 @@ class Game:
 		self.RESOLUCION = (800, 600)
 		self.FPS = 60
 
-		# 3 - Nueva variable para controlar el scroll vertical
+		# añadimos un array de scrolls
+		self.arrayScrolls = []
+
 		self.scrollY = 0
 
 		self.pantalla = pygame.display.set_mode(self.RESOLUCION)
@@ -40,24 +45,35 @@ class Game:
 
 		self.enJuego = True
 
+		
+
 
 
 	def instancias(self):
-		self.nave = Nave(self)
-		self.lista_spritesAdibujar.add(self.nave)
+		self.avioneta = Avioneta(self)
+		self.lista_spritesAdibujar.add(self.avioneta)
+
+		scroll1 = ScrollParalax(self, 0, 350, 1, '../images/moonpatrol1.png')
+		self.arrayScrolls.append(scroll1)
+		scroll2 = ScrollParalax(self, 0, 420, 2, '../images/moonpatrol2.png')
+		self.arrayScrolls.append(scroll2)
+		scroll3 = ScrollParalax(self, 0, 540, 3, '../images/moonpatrol3.png')
+		self.arrayScrolls.append(scroll3)
+		
+	
+
+	
+	def instanciaDisparo(self, diagonal):
+
+		disparo = Disparo(self, self.avioneta.rect.right, self.avioneta.rect.centery, diagonal)
+		self.lista_spritesAdibujar.add(disparo)
 
 
-	# 2 - creamos la clase mencionada:
-	def scrollEspacial(self):
-		self.scrollY += 1
+	# instanciamos el impacto
+	def instanciaEfectoImpactoSuelo(self, x, y):
+		efectoIBS = EfectoImpactoBalaSuelo(self, x, y)
+		self.lista_spritesAdibujar.add(efectoIBS)
 
-		if self.scrollY >= self.RESOLUCION[1]:
-			self.scrollY = 0
-
-		# ahora pintamos
-		self.pantalla.blit(self.fondoEstrellas, (0, self.scrollY))
-		# para repetier el fondo( acaba uno y empieza otro sucesivamente)
-		self.pantalla.blit(self.fondoEstrellas, (0, self.scrollY - self.RESOLUCION[1]))
 
 
 
@@ -70,8 +86,13 @@ class Game:
 
 
 	def draw(self):
-		# 1 - llamamos a la función (aún no creada) scrollEspacial
-		self.scrollEspacial()
+		self.pantalla.blit(self.fondoEstrellas, (0, 0))
+		
+		# añadimos los scroll creado
+		for scroll in self.arrayScrolls:
+			scroll.dibuja()
+
+
 
 		self.lista_spritesAdibujar.draw(self.pantalla) 
 
