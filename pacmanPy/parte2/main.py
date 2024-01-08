@@ -83,25 +83,29 @@ class Game:
         self.lista_sprites_adibujar = pygame.sprite.Group()
         # grupo de un solo elemento (personaje)
         self.lista_pacman = pygame.sprite.Group()
+        # lista con los bloques
+        self.lista_laberinto = pygame.sprite.Group()
 
         self.crear_pantalla()
 
     def crear_pantalla(self):
-        # 3 - CREAMOS LA PANTALLA
+        # 3 - CREAMOS LA PANTALLA, instanaciando los bloques co un for
         contador = -1
         for y in range(21):
             for x in range(19):
                 contador += 1
                 valor = self.crear_laberinto[contador]
                 if valor == 9:
-                    self.laberinto = Laberinto(self, x * slef)
+                    self.laberinto = Laberinto(self, x * self.BSX, y * self.BSY, valor)
+                    self.lista_sprites_adibujar.add(self.laberinto)
+                    self.lista_laberinto.add(self.laberinto)
 
     def new_game(self):
         self.puntos = 0
         self.nivel = 1
         self.vidas = 3
 
-        self.pacman = PacMan(self, 25, 25)
+        self.pacman = PacMan(self, 75, 75)
         self.lista_sprites_adibujar.add(self.pacman)
 
     def nivel_superado(self):

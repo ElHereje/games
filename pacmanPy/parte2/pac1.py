@@ -44,6 +44,63 @@ class PacMan(pygame.sprite.Sprite):
             self.rect.centerx = centerx
             self.rect.centery = centery
 
+        # 4 condicionales para el movimietno
+        # interseccion entre bloques (cuando es posible el camnio de dirrccipon)
+        if self.rect.centerx % 2 == 0 and self.rect.centery % 25 == 0: # sie es exacta
+            if self.pulsada == 'left':
+                self.rect.centerx -= self.game.BSX
+                laberinto = self.check_colision_laberinto() # comprueba si ahay colisión
+                if not laberinto:
+                    self.orientacion = 5
+                    self.orientacion_max = self.orientacion + 4
+                    self.vel_x = -2
+                    self.vel_y = 0
+
+                self.rect.centerx += self.game.BSX
+
+            if self.pulsada == 'right':
+                self.rect.centerx += self.game.BSX
+                laberinto = self.check_colision_laberinto() # comprueba si ahay colisión
+                if not laberinto:
+                    self.orientacion = 1
+                    self.orientacion_max = self.orientacion + 4
+                    self.vel_x = -2
+                    self.vel_y = 0
+
+                self.rect.centerx -= self.game.BSX
+
+            if self.pulsada == 'up':
+                self.rect.centery -= self.game.BSY
+                laberinto = self.check_colision_laberinto() # comprueba si ahay colisión
+                if not laberinto:
+                    self.orientacion = 8
+                    self.orientacion_max = self.orientacion + 4
+                    self.vel_x = -2
+                    self.vel_y = 0
+
+                self.rect.centery += self.game.BSY
+
+            if self.pulsada == 'down':
+                self.rect.centery += self.game.BSY
+                laberinto = self.check_colision_laberinto() # comprueba si ahay colisión
+                if not laberinto:
+                    self.orientacion = 11
+                    self.orientacion_max = self.orientacion + 4
+                    self.vel_x = -2
+                    self.vel_y = 0
+
+                self.rect.centery -= self.game.BSY
+
+        # si no estamos en uina intersección:
+        laberinto = self.check_colision_laberinto()
+        if not laberinto:
+            self.rect.centerx += self.vel_x
+            self.rect.centery += self.vel_y
+        else:
+            self.rect.centerx += -self.vel_x # para que no se quede pegado a la pared
+            self.rect.centery += -self.vel_y
+
+
     def leer_teclado(self):
         tecla = pygame.key.get_pressed()
 
@@ -56,6 +113,15 @@ class PacMan(pygame.sprite.Sprite):
         elif tecla[pygame.K_DOWN]:
             self.pulsada = 'down'
 
+    # 5 - creamos la función check_colisiópn_laberinto()
+            # nos da true o false si es que hay colisiones con als paredes
+    def check_colision_laberinto(self):
+        impactos = pygame.sprite.groupcollide(self.game.lista_laberinto, self.game.lista_pacman, False, False) # detecta colisiones entre grupos
+        for impacto in impactos:
+            # info en consola para omproar las coordenadas
+            print(impacto.rect.centerx, impacto.rect.centery, self.rect.centerx, self.rect.centery)
+            return True # true signifioca que hay una pared
+        return False
 
 
 # 1 - creamos la clase LABERINTO
@@ -64,7 +130,7 @@ class Laberinto(pygame.sprite.Sprite):
         super().__init__()
         self.game = game
 
-        self.image = pygame.image.load('packGraf/bloquepac.png').convert()
+        self.image = pygame.image.load('pacGraf/bloquepac1.png').convert()
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         self.rect.x = x
