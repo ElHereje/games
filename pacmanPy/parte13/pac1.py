@@ -12,12 +12,19 @@ class PacMan(pygame.sprite.Sprite):
         super().__init__() # heredamos los métodos de la clase sprite
         self.game = game
 
+        escalaX = self.game.BSX
+        escalaY = self.game.BSY
+
         self.enemigos_anima = [] # lsta de pacmans e imagenes
-        for i in range(14): # hay 25 archivos de imágenes
-            file = f'pacGraf/pacman{i+1}.png' 
+        for i in range(25): # hay 14 archivos de imágenes
+            file = f'pacGraf/pacman{i}.png' 
             img = pygame.image.load(file).convert()
-            img.set_colorkey((255, 255, 255))
-            self.enemigos_anima.append(img)
+
+            # 5 - ESCALAMOS LOS PACMANS
+            img2 = pygame.transform.scale(img, (escalaX, escalaY))
+
+            img2.set_colorkey((255, 255, 255))
+            self.enemigos_anima.append(img2)
 
         # la imagen por defecto es la 1
         self.image = self.enemigos_anima[1]
@@ -30,9 +37,9 @@ class PacMan(pygame.sprite.Sprite):
 
         self.pulsada = 'right' # por defecto es como si estubiera pulsada la dcha
         self.orientacion = 1 # orden de imagen correspondiente a la imagen a la dcha
-        self.orientacion_max = self.orientacion + 3 # n de imagenes por movimiento
+        self.orientacion_max = self.orientacion + 6 # n de imagenes por movimiento
         self.vel_x = 2
-        self.vel_y = 0
+        self.vel_y = 2
         # para determinar la velocidad de las animaciones
         self.ultimo_update = pygame.time.get_ticks()
         self.fotograma_vel = 100 # velocidad de la animación
@@ -53,7 +60,7 @@ class PacMan(pygame.sprite.Sprite):
             self.ultimo_update = calculo
             self.orientacion += 1 # cambiamos la imagen del fotograma
             if self.orientacion >= self.orientacion_max:
-                self.orientacion = self.orientacion_max - 2 # si alcanza el tope, volvemos
+                self.orientacion = self.orientacion_max - 6 # si alcanza el tope, volvemos
 
             centerx = self.rect.centerx
             centery = self.rect.centery
@@ -87,8 +94,8 @@ class PacMan(pygame.sprite.Sprite):
                 self.rect.centerx -= self.game.BSX
                 laberinto = self.check_colision_laberinto(self.i_d) # comprueba si ahay colisión
                 if not laberinto:
-                    self.orientacion = 8
-                    self.orientacion_max = self.orientacion - 3
+                    self.orientacion = 7
+                    self.orientacion_max = self.orientacion + 6
                     self.vel_x = -2
                     self.vel_y = 0
 
@@ -98,8 +105,8 @@ class PacMan(pygame.sprite.Sprite):
                 self.rect.centerx += self.game.BSX
                 laberinto = self.check_colision_laberinto(self.i_d) # comprueba si ahay colisión
                 if not laberinto:
-                    self.orientacion = 6
-                    self.orientacion_max = self.orientacion - 3
+                    self.orientacion = 1
+                    self.orientacion_max = self.orientacion + 6
                     self.vel_x = 2
                     self.vel_y = 0
 
@@ -109,8 +116,8 @@ class PacMan(pygame.sprite.Sprite):
                 self.rect.centery -= self.game.BSY
                 laberinto = self.check_colision_laberinto(self.i_d) # comprueba si ahay colisión
                 if not laberinto:
-                    self.orientacion = 11
-                    self.orientacion_max = self.orientacion - 3
+                    self.orientacion = 13
+                    self.orientacion_max = self.orientacion + 6
                     self.vel_x = 0
                     self.vel_y = -2
 
@@ -120,8 +127,8 @@ class PacMan(pygame.sprite.Sprite):
                 self.rect.centery += self.game.BSY
                 laberinto = self.check_colision_laberinto(self.i_d) # comprueba si ahay colisión
                 if not laberinto:
-                    self.orientacion = 11
-                    self.orientacion_max = self.orientacion +  3
+                    self.orientacion = 19
+                    self.orientacion_max = self.orientacion +  6
                     self.vel_x = 0
                     self.vel_y = 2
 
@@ -188,13 +195,21 @@ class PacManDies(pygame.sprite.Sprite):
         super().__init__()
         self.game = game
 
-        animaciones = [1, 4, 8, 12] # las imagenes que vamos a usarç
+        # 6 - ESCALAMOS PACMAN AL MORIR
+        escalaX = self.game.BSX
+        escalaY = self.game.BSY
+
+        animaciones = [1, 19, 7, 13] # las imagenes que vamos a usarç
         self.enemigos_anima = []
         for i in animaciones:
             file = f'pacgraf/pacman{i}.png'
             img = pygame.image.load(file).convert()
-            img.set_colorkey((255, 255, 255))
-            self.enemigos_anima.append(img)
+
+            # 6 - ESCALAMOS PACMAN AL MORIR
+            img2 = pygame.transform.scale(img, (escalaX, escalaY))
+
+            img2.set_colorkey((255, 255, 255))
+            self.enemigos_anima.append(img2)
 
         self.image = self.enemigos_anima[0]
         self.rect = self.image.get_rect()
@@ -241,7 +256,12 @@ class MostrarVidas(pygame.sprite.Sprite):
     def __init__(self, game, y):
         super().__init__()
         self.game = game
-        self.image = pygame.image.load('pacGraf/pacman1.png').convert()
+        img = pygame.image.load('pacGraf/pacman1.png').convert()
+
+        # 7 - ESCALAMOS VIDAS
+        escalaX = self.game.BSX
+        escalaY = self.game.BSY
+        self.image = pygame.transform.scale(img, (escalaX, escalaY))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         self.rect.x = self.game.BSX * self.game.NRO_COLUMNAS

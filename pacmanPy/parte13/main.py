@@ -5,7 +5,17 @@ from pac1 import *
 from pac2 import *
 from pac3 import *
 
-''' Escalar pantalla
+'''  VIDEO 13
+Escalar pantalla
+1 - Escalamos bloques Clase Laberinto
+2 - Modificamos BSY de la clase game
+3 - Escalamos los puntitos
+4 - Escalamos los items, modificanto tyb al instanciarlos el el método new_game
+    (tienen posición absoluta 475, 575)
+    ----------
+
+5 - Escalamnos los Pacmans, modificando tb el método check_reinstancia
+    (tienen posición absoluta 475, 575)
 Superar nivel
     
     '''
@@ -41,7 +51,8 @@ class Game:
         self.pausa_superado_tomartiempo = pygame.time.get_ticks()
         # tamaños de los bloques (personajes)
         BLOQUE_SIZE_X = 50
-        BLOQUE_SIZE_Y = 50
+        # 2 - MODIFICAMOS  PARA EL ESCALADO EL RANGO Y
+        BLOQUE_SIZE_Y = 40
         self.BSX = BLOQUE_SIZE_X
         self.BSY = BLOQUE_SIZE_Y
         self.NRO_FILAS = 21
@@ -91,7 +102,7 @@ class Game:
         self.nivel = 1
         self.vidas = 3
         self.PAUSA_VIDAS = 2000
-        self.RESOLUCION = (1200, 1050)
+        self.RESOLUCION = (1120, 850)
         self.FPS = 60
         # sonidos
         self.sonido_wakawaka = pygame.mixer.Sound('sonido/pacmanwakawaka.ogg')
@@ -105,7 +116,7 @@ class Game:
         self.sonido_eatingGhost = pygame.mixer.Sound('sonido/pacmaneatinghost.ogg')
         self.sonido_inicioNivel = pygame.mixer.Sound('sonido/pacmaninicionivel.ogg')
         pygame.mixer.music.load('sonido/pacmanintermision.ogg')
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(0.2)
         pygame.mixer.music.play(loops=-1) # sonido en bucle
 
         self.pantalla = pygame.display.set_mode(self.RESOLUCION)
@@ -159,7 +170,9 @@ class Game:
         self.puntos = 0
         self.nivel = 1
         self.vidas = 3
-        self.items = Items(self, 475, 575)
+        # 4b - AJUSTAMOS LA POSICION DE LOS PUNTITOS
+        self.items = Items(self, 9*self.BSX + self.BSX //2,
+                           11 * self.BSY + self.BSY //2)
         self.lista_sprites_adibujar.add(self.items)
         self.lista_items.add(self.items)
 
@@ -261,7 +274,9 @@ class Game:
             return # NO SIGAS...
 
         # Movemos las instancias desde new_game
-        self.pacman = PacMan(self, 475, 225)
+        # 5b - RECALCULAMOS LA POSICION ORIGINAL DE PACMAN
+        self.pacman = PacMan(self, 9 * self.BSX + self.BSX // 2, 
+                             4 * self.BSY + self.BSY // 2)
         self.lista_sprites_adibujar.add(self.pacman)
         self.lista_pacman.add(self.pacman)
 
