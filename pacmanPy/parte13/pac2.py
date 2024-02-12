@@ -11,13 +11,20 @@ class Fantasma(pygame.sprite.Sprite):
         self.game = game
         self.tipoF = tipoFantasma # hay 4 tipos de fantasmas
         self.direccion = direccion
+
+        # 8 - DEFINIMOS LAS VARIABLES PARA EL ESCALADO.
+        escalaX = self.game.BSX
+        escalaY = self.game.BSY
+
         self.enemigos_anima = []
         self.nro_fotogramas = 3
         for i in range(self.nro_fotogramas):
             file  =  f'pacGraf/fantasma{self.tipoF + i}.png'
+            # 8B - ESCALAMOS LA IMAGEN
             img = pygame.image.load(file).convert()
-            img.set_colorkey((255, 255, 255))
-            self.enemigos_anima.append(img)
+            img2 = pygame.transform.scale(img, (escalaX, escalaY))
+            img2.set_colorkey((255, 255, 255))
+            self.enemigos_anima.append(img2)
         
         # creamos los fantasmas de la lista
         self.image = self.enemigos_anima[0]
@@ -174,13 +181,20 @@ class Ojos(pygame.sprite.Sprite):
         self.game = game
         self.tipoF = tipoFantasma
 
-        self.image = pygame.image.load('pacGraf/ojos_fantasma.png').convert()
+        # 9 - ESCALAMOS LOS OJOS SEGÚN PROPÒRCION (SON DE 20X5)
+        escalaX = self.game.BSX // 2.5  
+        escalaY = self.game.BSY // 10
+
+        img = pygame.image.load('pacGraf/ojos_fantasma.png').convert()
+        self.image = pygame.transform.scale(img, (escalaX, escalaY))
         self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         fantasmaX = self.game.fantasma.cx
         fantasmaY = self.game.fantasma.cy
         self.rect.centerx = fantasmaX[self.tipoF] + fantasmaX[self.tipoF + 4]
-        self.rect.centery = fantasmaY[self.tipoF] + fantasmaY[self.tipoF + 4] - 9 # correccion en pixeles
+        # 9B - Corregimos para el escalado de los ojos (SOLO LA Y)
+        self.coorYcorrecion = (self.game.BSY * 9) / 50
+        self.rect.centery = fantasmaY[self.tipoF] + fantasmaY[self.tipoF + 4] - self.coorYcorrecion # correccion en pixeles
 
     def update(self):
         if self.game.kill_fantasmas:
@@ -189,4 +203,4 @@ class Ojos(pygame.sprite.Sprite):
         fantasmaX = self.game.fantasma.cx
         fantasmaY = self.game.fantasma.cy
         self.rect.centerx = fantasmaX[self.tipoF] + fantasmaX[self.tipoF + 4]
-        self.rect.centery = fantasmaY[self.tipoF] + fantasmaY[self.tipoF + 4] - 9
+        self.rect.centery = fantasmaY[self.tipoF] + fantasmaY[self.tipoF + 4] - self.coorYcorrecion

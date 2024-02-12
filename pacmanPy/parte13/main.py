@@ -16,6 +16,18 @@ Escalar pantalla
 
 5 - Escalamnos los Pacmans, modificando tb el método check_reinstancia
     (tienen posición absoluta 475, 575)
+6 - EScalamos PacMan dies
+7 - Escalamos las vidas
+
+    ----------
+
+8 - Escalamos los fantasmas y los instanciamos en sus posiciones correctas (main) con su 
+    valor de escalado
+9 - Escalamos los ojos
+
+10 - Escalamos el texto de 100
+
+
 Superar nivel
     
     '''
@@ -58,11 +70,12 @@ class Game:
         self.NRO_FILAS = 21
         self.NRO_COLUMNAS = 19     
         # lista con los valores iniciales de los fantasmas
+        # 8C -  MODIFICAMOS LOS VALORES ABSOLUTOS POR LOS RELATIVOS
         self.lista_valoresFantasmas = [
-            (275, 425, 0, 'le'), # x, y, fotograma, direccion
-            (425, 425, 1, 'le'),
-            (525, 425, 2, 'ri'),
-            (675, 425, 3, 'ri')
+            (5, 8, 0, 'le'), # x, y, fotograma, direccion
+            (8, 8, 1, 'le'),
+            (10, 8, 2, 'ri'),
+            (13, 8, 3, 'ri')
         ]
 
         self.crear_laberinto = [
@@ -214,7 +227,9 @@ class Game:
         # texto de los ITEMS
         if self.mostrarPuntosItem > 0:
             self.mostrarPuntosItem -= 1 # cuanta atrás
-            self.dibuja_texto(self.pantalla, '100', 45, 450, 550, self.ROJO)
+            # 10 - ESCALAMOS EL TEXTO DE 100
+            self.dibuja_texto(self.pantalla, '100', int(self.BSY / 1.11),
+                               9 * self.BSX, 11 * self.BSY, self.ROJO)
 
         
     def nivel_superado(self):
@@ -290,7 +305,10 @@ class Game:
         # instanciamos los 4 fantasmas
         for i in range (4):
             datos = self.lista_valoresFantasmas[i]
-            self.fantasma = Fantasma(self, datos[0], datos[1], datos[2] * 10 + 1, datos[3])
+            # 8C - AJUSTAMOS LOS VALORES DE PRESENTACION
+            coorX = datos[0] * self.BSX + self.BSX // 2
+            coory = datos[1] * self.BSY + self.BSY // 2
+            self.fantasma = Fantasma(self, coorX, coory, datos[2] * 10 + 1, datos[3])
             self.lista_sprites_adibujar.add(self.fantasma)
             self.lista_fantasmas[i].add(self.fantasma)
             self.lista_4fantasmas.add(self.fantasma)
