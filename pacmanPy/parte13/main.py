@@ -27,6 +27,9 @@ Escalar pantalla
 
 10 - Escalamos el texto de 100
 
+11 - Pasar de nivel al comer todos los puntitos
+
+
 
 Superar nivel
     
@@ -56,7 +59,7 @@ class Game:
         # bandera para reiniciar personajes
         self.reinstanciar_pacmanfantasmas = True # tras muerte se reinician
         self.kill_fantasmas = True
-        self.nivel_superado = True
+        self.nivel_superado = False
         # Para que el item nos dé puntos, 1º creamos una variable
         self.mostrarPuntosItem = 0
         # pausa entre niveles
@@ -232,8 +235,11 @@ class Game:
                                9 * self.BSX, 11 * self.BSY, self.ROJO)
 
         
-    def nivel_superado(self):
-        pass
+    # 11 - AQUÍ CONFIGURAMOS EL FINAL DEL NIVEL
+    def check_nivel_superado(self):
+        if len(self.lista_puntitos) <= 0: # si la lista está vacia....
+            self.nivel_superado = True
+            print('Nivel Superado')
 
     def pausa_nivel_superado(self):
         pass
@@ -260,6 +266,10 @@ class Game:
 
         if not self.inicio: # ... si no es inicio, comienza el juego
             self.lista_sprites_adibujar.update()
+
+            # 11b - Comprobams que queden puntitos
+            self.check_nivel_superado()
+
             self.check_colision_pacmanFantasmas()
             self.check_reinstanciar()
 
