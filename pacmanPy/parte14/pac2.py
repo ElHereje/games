@@ -11,17 +11,29 @@ class Fantasma(pygame.sprite.Sprite):
         self.game = game
         self.tipoF = tipoFantasma # hay 4 tipos de fantasmas
         self.direccion = direccion
-        escalaX = self.game.BSX
-        escalaY = self.game.BSY
+        
 
         self.enemigos_anima = []
-        self.nro_fotogramas = 3
+        # 3 - Aumentamos el nº de animaciones a 5 (se han añadido 2)
+        self.nro_fotogramas = 5
         for i in range(self.nro_fotogramas):
-            file  =  f'pacGraf/fantasma{self.tipoF + i}.png'
-            img = pygame.image.load(file).convert()
-            img2 = pygame.transform.scale(img, (escalaX, escalaY))
-            img2.set_colorkey((255, 255, 255))
-            self.enemigos_anima.append(img2)
+            # 3a - condicionamos por tipo de fantasma
+            if i < 3: # ..normales
+                file  =  f'pacGraf/fantasma{self.tipoF + i}.png'
+                img = pygame.image.load(file).convert()
+                escalaX = self.game.BSX
+                escalaY = self.game.BSY
+                img2 = pygame.transform.scale(img, (escalaX, escalaY))
+                img2.set_colorkey((255, 255, 255))
+                self.enemigos_anima.append(img2)
+            else: # .. se convierten en azules....
+                file  =  f'pacGraf/fantasmaAzul{i - 2}.png'
+                img = pygame.image.load(file).convert()
+                escalaX = self.game.BSX
+                escalaY = self.game.BSY
+                img2 = pygame.transform.scale(img, (escalaX, escalaY))
+                img2.set_colorkey((255, 255, 255))
+                self.enemigos_anima.append(img2)
         
         # creamos los fantasmas de la lista
         self.image = self.enemigos_anima[0]
@@ -77,20 +89,43 @@ class Fantasma(pygame.sprite.Sprite):
 
         if not self.game.enJuego:
             return
+        
+        # 3b - VERIFICAMOS SI LOS FANTASMAS ESTÁN EN AZUL.
+        if self.game.countDownAzules > 0:
+            self.game.countDownAzules -= 1
+
 
         calculo = pygame.time.get_ticks() # tomas de tiempo
         if calculo - self.ultimo_update > self.fotograma_vel: # cambio de animacion
             self.ultimo_update = calculo
             self.fotograma += 1 # cambiamos la imagen del fotograma
-            if self.fotograma >= self.nro_fotogramas:
+            if self.fotograma >= self.nro_fotogramas - 2: # 3c ... sin contar con los azules..
                 self.fotograma = 0 # si alcanza el tope, volvemos
 
-            centerx = self.rect.centerx
-            centery = self.rect.centery
-            self.image = self.enemigos_anima[self.fotograma]
-            self.rect = self.image.get_rect()
-            self.rect.centerx = centerx
-            self.rect.centery = centery
+            # 3d - los ponemos intermitentes para avisar que se acaba el tiempo
+            if self.game.countDownAzules <= 0:
+                centerx = self.rect.centerx
+                centery = self.rect.centery
+                self.image = self.enemigos_anima[self.fotograma]
+                self.rect = self.image.get_rect()
+                self.rect.centerx = centerx
+                self.rect.centery = centery
+
+            elif self.game.countDownAzules < 300: 
+                centerx = self.rect.centerx
+                centery = self.rect.centery
+                self.image = self.enemigos_anima[self.fotograma + 2] # así parpadea
+                self.rect = self.image.get_rect()
+                self.rect.centerx = centerx
+                self.rect.centery = centery
+
+            else:
+                centerx = self.rect.centerx
+                centery = self.rect.centery
+                self.image = self.enemigos_anima[self.nro_fotogramas - 2] # pone uno en concreto
+                self.rect = self.image.get_rect()
+                self.rect.centerx = centerx
+                self.rect.centery = centery
 
         # Averiguamos hacia donde debe ir (donde está pacman)
         for i in self.ptosClave:

@@ -10,7 +10,7 @@ restauramos la resolucion a (1120, 1050) X e Y a 50
  
 1 - creamos los puntitos gordos (animación)
 2 - codificamos las colisiones de estos con pacman (se los come) (pac2)
-3 - Hacemos que los fantasmas se pongan azules (pac3) (28'20'')
+3 - Hacemos que los fantasmas se pongan azules (pac2) (28'20'')
     
     '''
 #====================================================
