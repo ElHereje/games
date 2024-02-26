@@ -1,0 +1,397 @@
+
+import pygame
+import sys
+from pac1 import *
+from pac2 import *
+from pac3 import *
+
+'''  VIDEO 16 - INTERVALOS ITEMS!!!
+ automatizaremos la salida de los items (frutas), cada cierto tiempo. además añadiremos nuevos png con más frutas 
+ y que nos den una puntuación diferente cada vez que subimos de nivel.
+
+ 1 - creamos la variable que gestione la salida de items
+ 2 - modificamos los ptos de los items
+ 3 - Eliminamos las frutas al pasar de nivel
+ 4 - Quitramos el instanciado de los items de new_game y lo pasamos a una nueva 
+        función --> instanciar_item
+ 5 - Gestionamos salidas de items
+ 6 - Gestionamos la salida del 1er ITEM
+ 7 - En pac1, modificamos check_colision_item
+ 8 - En pac3, incluimos el resto de items
+
+    
+    '''
+#====================================================
+#                 Cod. Ppal MAIN
+#====================================================
+
+class Game:
+    def __init__(self):
+        pygame.init()
+        pygame.mixer.init()
+        # colores
+        self.AMARILLO = (220, 190, 0)
+        self.BLANCO = (240, 240, 240)
+        self.FONDO_GRIS = (73, 73, 73)
+        self.ROJO = (230, 0, 0)
+        self.VERDE_FONDO = (20, 240, 30)
+        self.AZUL_C = (144, 205, 205)
+        self.intro_presentacion = True # se activa nada mas empezar
+        self.inicio = False # comienza tras la presentaión ( y antes del juego)
+        self.inicio_ultimoUpdate = 0
+        self.DURACION_MUSIC_INICIO = 4000 # milisegundos
+        # banderas
+        self.enJuego = False
+        self.gameOver = True
+        # bandera para reiniciar personajes
+        self.reinstanciar_pacmanfantasmas = True # tras muerte se reinician
+        self.kill_fantasmas = True 
+        self.nivel_superado = False
+        # Para que el item nos dé puntos, 1º creamos una variable
+        self.mostrarPuntosItem = 0
+
+        # 1 - toma de tiempo para las salida de items
+        self.salir_otro_item = 0
+
+        # pausa entre niveles
+        self.pausa_superado_tomartiempo = 0
+        # tamaños de los bloques (personajes)
+        BLOQUE_SIZE_X = 50
+        BLOQUE_SIZE_Y = 50
+        self.BSX = BLOQUE_SIZE_X
+        self.BSY = BLOQUE_SIZE_Y
+        self.NRO_FILAS = 21
+        self.NRO_COLUMNAS = 19 
+
+        # variables regresivas para fantasmas azules
+        self.countDownAzules = 0 # estado normal
+        self.duracionazules = 2200 # pasos por bucle (7 seg..)
+
+        # lista con los valores iniciales de los fantasmas
+        self.lista_valoresFantasmas = [
+            (5, 8, 0, 'le'), # x, y, fotograma, direccion
+            (8, 8, 1, 'le'),
+            (10, 8, 2, 'ri'),
+            (13, 8, 3, 'ri')
+        ]
+
+        # 9 = Pared   1 = puntito   0 = vacio  5 = punto gordo
+        self.crear_laberinto = [
+            9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+            9,5,1,1,1,1,1,1,1,9,1,1,1,1,1,1,1,5,9,
+            9,1,9,9,1,9,9,9,1,9,1,9,9,9,1,9,9,1,9,
+
+            9,1,9,9,1,9,9,9,1,9,1,9,9,9,1,9,9,1,9,
+            9,1,1,1,2,1,1,1,1,0,1,1,1,1,2,1,1,1,9,
+            9,1,9,9,1,9,1,9,9,9,9,9,1,9,1,9,9,1,9,
+
+            9,1,1,1,1,9,1,1,1,9,1,1,1,1,1,1,1,1,9,
+            9,9,9,9,1,9,9,9,1,9,1,9,9,9,1,9,9,9,9,
+            9,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,9,
+
+            9,1,9,9,1,9,1,9,9,9,9,9,1,9,1,9,9,1,9,
+            9,1,9,9,1,9,1,9,9,9,9,9,1,9,1,9,9,1,9,
+            9,1,1,1,1,9,1,1,1,0,1,1,1,9,1,1,1,1,9,
+
+            9,1,9,9,1,9,1,9,9,9,9,9,1,9,1,9,9,1,9,
+            9,5,1,1,2,1,1,1,1,9,1,1,1,1,2,1,1,5,9,
+            9,1,9,9,1,9,9,9,1,9,1,9,9,9,1,9,9,1,9,
+
+            9,1,1,9,1,1,1,1,1,0,1,1,1,1,1,9,1,1,9,
+            9,9,1,9,1,9,1,9,9,9,9,9,1,9,1,9,1,9,9,
+            9,1,1,1,1,9,1,1,1,9,1,1,1,9,1,1,1,1,9,
+
+            9,1,9,9,9,9,9,9,1,9,1,9,9,9,9,9,9,1,9,
+            9,0,1,1,1,1,1,1,2,1,2,1,1,1,1,1,1,0,9,
+            9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9
+        ]
+
+        self.cx = [0, 0, 0, 0, 0, 0, 0, 0] # 4 coordenadas y 4 direcciones
+        self.cy = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        self.puntos = 0
+        self.nivel = 1
+        self.vidas = 3
+        self.PAUSA_VIDAS = 2000
+        self.RESOLUCION = (1120, 1050)
+        self.FPS = 60
+        # sonidos
+        self.sonido_wakawaka = pygame.mixer.Sound('sonido/pacmanwakawaka.ogg')
+        self.sonido_sirena = pygame.mixer.Sound('sonido/pacmansirena.ogg')
+        self.sonido_eatingCherry = pygame.mixer.Sound('sonido/pacmaneatingcherry.ogg')
+        self.sonido_pacmanDies = pygame.mixer.Sound('sonido/pacmandies.ogg')
+        self.sonido_wakawaka.set_volume(0.9)
+        self.sonido_sirena.set_volume(0.2)
+        self.sonido_gameover_retro = pygame.mixer.Sound('sonido/gameoveretro.ogg')
+        self.sonido_fantasmas_azules = pygame.mixer.Sound('sonido/pacmanazules.ogg')
+        self.sonido_eatingGhost = pygame.mixer.Sound('sonido/pacmaneatinghost.ogg')
+        self.sonido_inicioNivel = pygame.mixer.Sound('sonido/pacmaninicionivel.ogg')
+        pygame.mixer.music.load('sonido/pacmanintermision.ogg')
+        pygame.mixer.music.set_volume(0.2)
+        pygame.mixer.music.play(loops=-1) # sonido en bucle
+
+        self.pantalla = pygame.display.set_mode(self.RESOLUCION)
+        pygame.display.set_caption('PacMan - Versión Imad Elias')
+        self.reloj = pygame.time.Clock()
+
+        self.lista_sprites_adibujar = pygame.sprite.Group()
+        # grupo de un solo elemento (personaje)
+        self.lista_pacman = pygame.sprite.Group()
+        # lista con los bloques
+        self.lista_laberinto = pygame.sprite.Group()
+        # lista con puntitos
+        self.lista_puntitos = pygame.sprite.Group()
+        # lista con puntos gordos
+        self.lista_puntosgordos = pygame.sprite.Group()
+        # lista con los items
+        self.lista_items = pygame.sprite.Group()
+        # lista con los fantasmas para la deteccion de colisiones
+        self.lista_fantasmas = [0, 0, 0, 0]
+        self.lista_fantasmas[0] = pygame.sprite.Group()
+        self.lista_fantasmas[1] = pygame.sprite.Group()
+        self.lista_fantasmas[2] = pygame.sprite.Group()
+        self.lista_fantasmas[3] = pygame.sprite.Group()
+        # lista general de los fantasmas
+        self.lista_4fantasmas = pygame.sprite.Group()
+
+        self.crear_pantalla()
+
+    def crear_pantalla(self):
+        contador = -1
+        for y in range(self.NRO_FILAS):
+            for x in range(self.NRO_COLUMNAS):
+                contador += 1
+                valor = self.crear_laberinto[contador]
+                # como los bloque estan en el mismop sitio
+                if valor == 9 and self.nivel == 1:
+                    self.laberinto = Laberinto(self, x * self.BSX, y * self.BSY, valor)
+                    self.lista_sprites_adibujar.add(self.laberinto)
+                    self.lista_laberinto.add(self.laberinto)
+
+                elif valor == 1:
+                    self.puntitos = Puntitos(self, x * self.BSX + self.BSX // 2, y * self.BSY + self.BSY // 2, valor)
+                    self.lista_sprites_adibujar.add(self.puntitos) # para que aparezca en pantalla
+                    self.lista_puntitos.add(self.puntitos)
+
+                elif valor == 5:
+                    self.puntosgordos = PuntosGordos(self, x * self.BSX + self.BSX // 2, y * self.BSY + self.BSY // 2)
+                    self.lista_sprites_adibujar.add(self.puntosgordos) # para que aparezca en pantalla
+                    self.lista_puntosgordos.add(self.puntosgordos)
+
+
+
+    def new_game(self):
+        # presentacion
+        self.intro_presentacion = False
+        self.inicio = True
+        self.inicio_ultimoUpdate = pygame.time.get_ticks()
+        self.sonido_inicioNivel.play()
+
+        self.puntos = 0
+        self.nivel = 1
+        self.vidas = 3
+        
+
+
+    # Función para dibujar texto (Marcadores)
+    def dibuja_texto(self, surface, texto, size, x, y, qcolor):
+        font = pygame.font.SysFont('seriff', size)
+        # si estamos en la intro, ponemos un fondo:
+        if self.intro_presentacion or self.inicio:
+            text_surface = font.render(texto, True, qcolor, (90, 90, 90))
+        else:
+            text_surface = font.render(texto, True, qcolor)
+        text_rect = text_surface.get_rect()
+        text_rect.topleft = (x, y)
+        surface.blit(text_surface, text_rect)
+
+    # texto en pantalla
+    def mostrar_marcadores(self):
+        self.dibuja_texto(self.pantalla, f' Ptos: {str(self.puntos)}', self.BSX - 5,
+                          self.BSX * self.NRO_COLUMNAS, self.BSY, self.BLANCO)
+
+        self.dibuja_texto(self.pantalla, f' Nivel: {str(self.nivel)}', self.BSX - 5,
+                          self.BSX * self.NRO_COLUMNAS, self.BSY * 3, self.BLANCO)
+        
+        # texto de GAME OVER
+        if self.gameOver and not self.intro_presentacion:
+            self.dibuja_texto(self.pantalla, ' GAME OVER ', 120 ,
+                              self.RESOLUCION[0] // 7, self.RESOLUCION[1] // 2,
+                              (230, 230, 0))
+
+        # presentación
+        if self.intro_presentacion:
+            self.dibuja_texto(self.pantalla, 'Pac Clon', 280,
+                              60, self.RESOLUCION[1] // 4, self.VERDE_FONDO)
+            
+        # inicio
+        if self.inicio:
+            self.dibuja_texto(self.pantalla, 'Preparado..', 90,
+                              self.RESOLUCION[0] // 3.8, self.RESOLUCION[1] // 1.5, self.AMARILLO)
+
+        # puntos ITEMS
+        if self.mostrarPuntosItem > 0:
+            self.mostrarPuntosItem -= 1 # cuanta atrás
+            # 2 - MODIFICAMOS LOS PTOS DE CADA ITEM
+            self.dibuja_texto(self.pantalla, str(self.items.sumaPtos), int(self.BSY / 1.11),
+                               9 * self.BSX, 11 * self.BSY, self.ROJO)            
+        # nivel superado
+        if self.nivel_superado:
+            self.dibuja_texto(self.pantalla, 'Nivel Superado!!', 120,
+                              self.RESOLUCION[0] // 9, self.RESOLUCION[1] // 3, self.AZUL_C)
+
+        
+    def check_nivel_superado(self):
+        if len(self.lista_puntitos) <= 0 and len(self.lista_puntosgordos) <= 0 : # si la lista está vacia....
+            self.nivel += 1
+            self.nivel_superado = True
+            self.kill_fantasmas = True # eliminamos todos los fantasmas
+            self.pacman.kill()
+
+            # 3 - ELIMINAMOS LAS FRUTAS AL PASAR DE NIVEL
+            if len(self.lista_items) > 0:
+                self.items.kill()
+
+            self.pausa_superado_tomartiempo = pygame.time.get_ticks()
+            pygame.mixer.music.play()
+            print('Nivel Superado')
+
+
+    # 4 - INSTANCIAMOS LOS ITEMS EN UNA FUNCION INDEPENDIENTE
+    def instanciar_item(self):
+        # sonido al salir item
+        if self.salir_otro_item != 0:
+            self.sonido_eatingCherry.play()
+
+        self.items = Items(self, 9*self.BSX + self.BSX //2,
+                           11 * self.BSY + self.BSY //2)
+        self.lista_sprites_adibujar.add(self.items)
+        self.lista_items.add(self.items)
+
+
+    # función que controla la colision con los fantasmas
+    def check_colision_pacmanFantasmas(self):
+        if not self.enJuego:
+            return
+        if self.pacman.check_colision_fantasmas():
+            self.enJuego = False
+            # Restamos una vida al morir
+            self.vidas -= 1
+            self.sonido_pacmanDies.play()
+            self.pacmandies = PacManDies(self, self.pacman.rect.centerx,
+                                         self.pacman.rect.centery)
+            self.lista_sprites_adibujar.add(self.pacmandies)
+
+
+    def update(self):
+        calculo = pygame.time.get_ticks()
+        if calculo -self.inicio_ultimoUpdate > self.DURACION_MUSIC_INICIO:
+            self.inicio = False
+
+        #...sin puntos, sin puntitos, y pasados 7 segundosd...
+        if len(self.lista_puntitos) == 0 and len(self.lista_puntosgordos) == 0 and calculo - self.pausa_superado_tomartiempo > 7500:
+            self.nivel_superado = False
+            self.reinstanciar_pacmanfantasmas = True
+            self.crear_pantalla()
+
+        # 5 - GESTIONAMOS SALIDAS DE ITEMS CADA 10 SEG y que no haya otro
+        if calculo - self.salir_otro_item > 9999 and len(self.lista_items) == 0:
+            self.instanciar_item()
+
+        if not self.inicio and not self.nivel_superado: # ... si no es inicio ni nivel superado, comienza el juego
+            self.lista_sprites_adibujar.update()
+            self.check_nivel_superado()
+            #self.check_colision_pacmanFantasmas()
+            self.check_reinstanciar()
+
+        pygame.display.flip()
+        self.reloj.tick(self.FPS)
+
+    def draw(self):
+        self.pantalla.fill(self.FONDO_GRIS)
+        self.lista_sprites_adibujar.draw(self.pantalla)
+        # marcadores
+        self.mostrar_marcadores()
+
+    # función que reinstancie los personajes si nos matan
+    def check_reinstanciar(self):
+        if not self.reinstanciar_pacmanfantasmas:
+            return
+        
+        self.kill_fantasmas = False # para que no elimine fantasmas
+        self.reinstanciar_pacmanfantasmas = False
+
+        # Controlamos el GAME OVER
+        if self.vidas < 0:
+            self.gameOver = True
+            self.enJuego = False
+            # SONIDO DE FIN
+            self.sonido_gameover_retro.play()
+            return # NO SIGAS...
+
+        # Movemos las instancias desde new_game
+        self.pacman = PacMan(self, 9 * self.BSX + self.BSX // 2, 
+                             4 * self.BSY + self.BSY // 2)
+        self.lista_sprites_adibujar.add(self.pacman)
+        self.lista_pacman.add(self.pacman)
+
+        # instanacias de las vidas
+        if self.vidas >= 1:
+            for i in range(self.vidas):
+                self.mostrarvidas = MostrarVidas(self, i + 1)
+                self.lista_sprites_adibujar.add(self.mostrarvidas)
+        
+
+        # instanciamos los 4 fantasmas
+        for i in range (4):
+            datos = self.lista_valoresFantasmas[i]
+            coorX = datos[0] * self.BSX + self.BSX // 2
+            coory = datos[1] * self.BSY + self.BSY // 2
+            self.fantasma = Fantasma(self, coorX, coory, datos[2] * 10 + 1, datos[3])
+            self.lista_sprites_adibujar.add(self.fantasma)
+            self.lista_fantasmas[i].add(self.fantasma)
+            self.lista_4fantasmas.add(self.fantasma)
+            # ... y sus ojos
+            self.ojos = Ojos(self, datos[2])
+            self.lista_sprites_adibujar.add(self.ojos)
+
+
+        # 5 - CREAMOS EL 1ER ITEM
+        self.instanciar_item()
+
+        
+    def check_event(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            elif event.type == pygame.KEYDOWN and self.gameOver:
+                if pygame.K_KP_ENTER:
+                    # al empezar el juego, la música deja de sonar
+                    pygame.mixer.music.stop()
+
+                    self.gameOver = False
+                    self.enJuego = True
+                    self.new_game()
+                    self.run()
+
+            elif not self.gameOver:
+                self.pacman.leer_teclado()
+
+    def run(self):
+        while not self.gameOver:
+            self.check_event()
+            self.update()
+            self.draw()
+
+        while self.gameOver:
+            self.update()
+            self.draw()
+            self.check_event()
+
+
+
+if __name__ == '__main__':
+    game = Game() # instanaciamos el juego
+    game.run()
