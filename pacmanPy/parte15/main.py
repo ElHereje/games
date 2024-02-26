@@ -241,8 +241,8 @@ class Game:
             self.nivel_superado = True
             self.kill_fantasmas = True # eliminamos todos los fantasmas
             self.pacman.kill()
-            self.pausa_nivel_superado = pygame.time.get_ticks()
-            pygame.mixer.music.play
+            self.pausa_superado_tomartiempo = pygame.time.get_ticks()
+            pygame.mixer.music.play()
             print('Nivel Superado')
 
     def pausa_nivel_superado(self):
@@ -278,7 +278,7 @@ class Game:
         if not self.inicio and not self.nivel_superado: # ... si no es inicio ni nivel superado, comienza el juego
             self.lista_sprites_adibujar.update()
             self.check_nivel_superado()
-            self.check_colision_pacmanFantasmas()
+            #self.check_colision_pacmanFantasmas()
             self.check_reinstanciar()
 
         pygame.display.flip()

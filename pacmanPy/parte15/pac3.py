@@ -68,8 +68,8 @@ class PuntosGordos(pygame.sprite.Sprite):
         for i in range(self.nroAnimaciones):
             file = f'pacGraf/pildopacxl{i+1}.png'
             img = pygame.image.load(file).convert()
-            escalaX = self.game.BSX - 5 * i
-            escalaY = self.game.BSY - 5 * i
+            escalaX = self.game.BSX - (5 * self.game.BSX // 50) * i
+            escalaY = self.game.BSY - (5 * self.game.BSY // 50) * i
             img2 = pygame.transform.scale(img, (escalaX, escalaY))
             img2.set_colorkey((255, 255, 255))
             self.enemigos_anima.append(img2)
